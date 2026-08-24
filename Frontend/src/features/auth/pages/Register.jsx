@@ -1,6 +1,7 @@
 import React,{useState} from 'react'
 import { useNavigate, Link } from 'react-router'
 import { useAuth } from '../hooks/useAuth'
+import { getAuthErrorMessage } from '../utils/getAuthErrorMessage'
 
 const Register = () => {
 
@@ -10,11 +11,21 @@ const Register = () => {
     const [ password, setPassword ] = useState("")
 
     const {loading,handleRegister} = useAuth()
+    const [ error, setError ] = useState("")
     
     const handleSubmit = async (e) => {
         e.preventDefault()
-        await handleRegister({username,email,password})
-        navigate("/")
+        setError("")
+        try {
+            await handleRegister({
+                username: username.trim(),
+                email: email.trim(),
+                password
+            })
+            navigate("/")
+        } catch (err) {
+            setError(getAuthErrorMessage(err, "Registration failed"))
+        }
     }
 
     if(loading){
@@ -25,6 +36,7 @@ const Register = () => {
         <main>
             <div className="form-container">
                 <h1>Register</h1>
+                {error && <p className="error-message" style={{ color: '#ff4d4f', marginBottom: '1rem', textAlign: 'center', fontWeight: 'bold' }}>{error}</p>}
 
                 <form onSubmit={handleSubmit}>
 
